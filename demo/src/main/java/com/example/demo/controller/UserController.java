@@ -3,6 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.data.TestRepository;
 import com.example.demo.data.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +18,9 @@ public class UserController {
 
     @Autowired
     private TestRepository testRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @GetMapping(value = "/getUserList")
     public List<User> getUserList() {
@@ -33,7 +39,11 @@ public class UserController {
 
     @GetMapping(value = "/findUser/{id}")
     public User findUser(@PathVariable("id") Integer id) {
-        return testRepository.findById(id).get();
+        String sql = "select * from user where id = ?";
+        RowMapper<User> rowMapper=new BeanPropertyRowMapper<User>(User.class);
+        return jdbcTemplate.queryForObject(sql, rowMapper,id);
+
+//        return testRepository.findById(id).get();
     }
 
     @GetMapping(value = "/findUserByAge")
